@@ -1,0 +1,83 @@
+http:
+  address: 0.0.0.0:4195
+  read_timeout: 5s
+  root_path: /benthos
+  debug_endpoints: false
+input:
+  mqtt:
+    urls:
+        - tcp://127.0.0.1:1883
+    topics:
+        - Basic
+        - vibration
+        - Abrpower
+        - XAbracceleration
+        - YAbracceleration
+        - ZAbracceleration
+        - XAbrvelocity
+        - YAbrvelocity
+        - ZAbrvelocity
+        - Machineheat
+        - Transferdata
+        - JxsBasic
+        - Jxsvibration
+        - JxsSelftest
+    client_id: benthos_mqtt
+    user: user
+    password: pass
+
+buffer:
+  type: none
+  none: {}
+
+pipeline:
+    processors:
+        - json:
+            operator: set
+            path: topic
+            value: ${!metadata:mqtt_topic}
+ 
+output:
+    kafka:
+        addresses:
+            - 192.168.1.2:9092
+            - 192.168.1.3:9092
+            - 192.168.1.4:9092
+        sasl:
+            mechanism: ""
+            user: ""
+            password: ""
+            access_token: ""
+            token_cache: ""
+            token_key: ""
+        topic: cncmqtt3
+        client_id: benthosproducer
+        key: ""
+        partitioner: fnv1a_hash
+        compression: none
+        max_in_flight: 1
+        batching:
+            count: 1
+            byte_size: 0
+            period: ""
+resources:
+  caches: {}
+  conditions: {}
+  processors: {}
+  rate_limits: {}
+logger:
+  prefix: benthos
+  level: INFO
+  add_timestamp: true
+  json_format: true
+  static_fields:
+    '@service': benthos
+metrics:
+  type: http_server
+  http_server:
+    prefix: benthos
+tracer:
+  type: none
+  none: {}
+shutdown_timeout: 20s
+
