@@ -1,0 +1,2 @@
+# benthos2oracle
+使用Benthos接收MQTT数据,发布至Kafka,再从Kafka消费存入Oracle
