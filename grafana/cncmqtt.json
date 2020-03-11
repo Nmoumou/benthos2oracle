@@ -179,7 +179,7 @@
       ],
       "timeFrom": null,
       "timeShift": null,
-      "title": "接收数据量/分钟",
+      "title": "接收数据速率",
       "type": "stat"
     },
     {
@@ -230,7 +230,7 @@
       ],
       "timeFrom": null,
       "timeShift": null,
-      "title": "发送数据量/分钟",
+      "title": "发送数据速率",
       "type": "stat"
     },
     {
@@ -313,5 +313,5 @@
   "timezone": "",
   "title": "CNC数据采集程序监控",
   "uid": "so6k_VuZz",
-  "version": 19
+  "version": 22
 }
