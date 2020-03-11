@@ -73,9 +73,11 @@ logger:
   static_fields:
     '@service': benthos
 metrics:
-  type: http_server
-  http_server:
+  prometheus:
     prefix: benthos
+    push_url: ""
+    push_interval: ""
+    push_job_name: benthos_push
 tracer:
   type: none
   none: {}
