@@ -13,19 +13,18 @@ if __name__ == "__main__":
         # 初始化Kafka
         kclient = CncKafka()
         consumer  = kclient.getconsumer()
-        cncparse = CNCParsing()
+        # cncparse = CNCParsing()
         for message in consumer:
-            if message is not None:
-                # 解析并存入Oracle数据
-                kmsg = message.value.decode('utf-8')
-                strtime = time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time()))
-                print(strtime + " :接收到Kafka消费信息-" + kmsg)
-                resmsg =json.loads(kmsg)
-                try:
-                    cncparse.parse(resmsg['topic'], resmsg)
-                except:
-                	errstr = traceback.format_exc()
-                	logger.writeLog("Kafka消费数据写入库错误:" + errstr + kmsg , "kafka2ora.log")
+            # 解析并存入Oracle数据
+            kmsg = message.value.decode('utf-8')
+            strtime = time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time()))
+            print(kmsg)
+                # resmsg =json.loads(kmsg)
+                # try:
+                #     cncparse.parse(resmsg['topic'], resmsg)
+                # except:
+                # 	errstr = traceback.format_exc()
+                # 	logger.writeLog("Kafka消费数据写入库错误:" + errstr + kmsg , "kafka2ora.log")
 
     except:
         errstr = traceback.format_exc()

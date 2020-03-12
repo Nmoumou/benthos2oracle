@@ -5,7 +5,8 @@ oracle:
     user: user
     password: pass
 kafka:
-    server: 127.0.0.1:9092
+    server: 
+        - 127.0.0.1:9092
     topic: cncmqtt3
-    consumergroup: mqttinfo
-    consumerid: mqttinfo01
+    consumergroup: cncinfo
+    consumerid: pythonkafka1
