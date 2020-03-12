@@ -22,5 +22,5 @@ config.yaml-----------------------------程序配置文件
 ## 3.Python运行依赖库
 
 - pip install cx_Oracle
-- pip install pykafka
+- pip install kafka-python
 - pip install pyyaml
