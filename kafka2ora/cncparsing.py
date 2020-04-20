@@ -26,7 +26,6 @@ class CNCParsing:
             if self.topic == 'Basic':
                 '''
                 {"CncId":"1",
-                "PingStr":"MDCisliving",
                 "RunStatus":"0",
                 "PoweronStatus":"0",
                 "Alarm":"报警信息",
@@ -35,29 +34,38 @@ class CNCParsing:
                 "EnvTemp":23.678,
                 "CutfluTemp":23.789,
                 "SliderTemp":23.891,
-                "Coordinate":{"X":12.123,"Y":23.234,"Z":34.345}
+                "Coordinate":{"X":12.123,"Y":23.234,"Z":34.345,"B":34.345,"CS":34.345,"V":34.345}
                 }
                 '''
                 # 给部分可选值设置默认值
                 if 'Alarm' not in self.jsonobj.keys():
                     self.jsonobj['Alarm'] = ''
                 if 'Coordinate' not in self.jsonobj.keys():
-                    self.jsonobj['Coordinate'] = {}
+                    self.jsonobj['Coordinate']['X'] = 0.0
+                    self.jsonobj['Coordinate']['Y'] = 0.0
+                    self.jsonobj['Coordinate']['Z'] = 0.0
+                    self.jsonobj['Coordinate']['B'] = 0.0
+                    self.jsonobj['Coordinate']['CS'] = 0.0
+                    self.jsonobj['Coordinate']['V'] = 0.0
                 #生成插入的sql语句
                 sqlstr = """
-                insert into BASIC_MACHINE (cncid, pingstr, runstatus, poweronstatus, 
+                insert into BASIC_MACHINE (cncid, runstatus, poweronstatus, 
                                         alarm, time, spindletemp, envtemp, 
-                                        cutflutemp, slidertemp, coordinate)
+                                        cutflutemp, slidertemp, x_axis, y_axis, z_zxis,
+                                        b_axis, cs_axis, v_axis)
                 values (:cncid, :pingstr, :runstatus, 
                         :poweronstatus, :alarm, to_date(:time, 'YYYY-MM-DD HH24:MI:SS'), 
-                        :spindletemp, :envtemp, :cutflutemp, :slidertemp, :coordinate)
+                        :spindletemp, :envtemp, :cutflutemp, :slidertemp, :x_axis,
+                        :y_axis, :z_zxis, :b_axis, :cs_axis, :v_axis)
                 """
-                parameters = {'cncid':self.jsonobj['CncId'], 'pingstr':self.jsonobj['PingStr'], 
+                parameters = {'cncid':self.jsonobj['CncId'], 
                             'runstatus':self.jsonobj['RunStatus'], 'poweronstatus':self.jsonobj['PoweronStatus'], 
                             'alarm':self.jsonobj['Alarm'], 'time':self.jsonobj['Time'], 
                             'spindletemp':self.jsonobj['SpindleTemp'], 'envtemp':self.jsonobj['EnvTemp'], 
                             'cutflutemp':self.jsonobj['CutfluTemp'], 'slidertemp':self.jsonobj['SliderTemp'], 
-                            'coordinate':json.dumps(self.jsonobj['Coordinate'])}
+                            'x_axis':self.jsonobj['Coordinate']['X'], 'y_axis':self.jsonobj['Coordinate']['Y'], 
+                            'z_zxis':self.jsonobj['Coordinate']['Z'], 'b_axis':self.jsonobj['Coordinate']['B'],
+                            'cs_axis':self.jsonobj['Coordinate']['CS'], 'v_axis':self.jsonobj['Coordinate']['V']}
                 # 插入数据库  
                 self.oradb.insert(sqlstr, parameters)
                 # print("机床基础信息写入数据库:" + json.dumps(self.jsonobj))
@@ -211,51 +219,50 @@ class CNCParsing:
             #热机时加速度有效值接口
             elif self.topic == 'Machineheat':
                 '''
-                {"CncId":"1",
-                "HeatNO":"111",
-                "MSAvePower":23.234,"XSAvePower":34.345,"YSAvePower":20.222,
-                "ZSAvePower":21.234,"BSAvePower":21.234,"VSAvePower":21.234,
-                "MSStdPower":1,"XStdPower":1,"YStdPower":1,
-                "ZStdPower":1,"BStdPower":1,"VStdPower":1,
-                "MSXAccelerationMax":1,"MSYAccelerationMax":1,"MSZAccelerationMax":1,
-                "MSBAccelerationMax":1,"XSXAccelerationMax":1,"YSYAccelerationMax":1,
-                "MSXVelocityRMS":1,"MSYVelocityRMS":1,"MSZVelocityRMS":1,
-                "MSBVelocityRMS":1,"XSXVelocityRMS":1,"YSYVelocityRMS":1,
-                "Time":"2020-01-22 22:53:14"}
+               {"CncId":"1",
+               "MSAvePower":23.234,"XSMedPower":34.345,
+               "YSMedPower":20.222,"ZSMedPower":21.234,
+               "BSMedPower":21.234,"VSMedPower":21.234,
+               "MSStdPower":1,"XIldPower":1,"YIldPower":1,
+               "ZIldPower":1,"BIldPower":1,"VIldPower":1,
+               "MSXAccelerationMax":1,"MSYAccelerationMax":1,"XSXAccelerationMax":1,
+               "YSYAccelerationMax":1,"MSXAccelerationRMS":1,"MSYAccelerationRMS":1,
+               "XSXAccelerationRMS":1,"YSYAccelerationRMS":1,"Time":"2020-01-22 22:53:14"}
                 '''
                 #全是必须值无省略值
                 #生成插入的sql语句
                 sqlstr = """
-                insert into MACHINEHEAT (cncid, time, heatno, msavepower, xsavepower, ysavepower,
-                                        zsavepower, bsavepower, vsavepower, msstdpower,
-                                        xstdpower, ystdpower, zstdpower, bstdpower, vstdpower,
+                insert into MACHINEHEAT (cncid, time, msavepower, xsmedpower, ysmedpower,
+                                        zsmedpower, bsmedpower, vsmedpower, msstdpower,
+                                        xildpower, yildpower, zildpower, bildpower, vildpower,
                                         msxaccelerationmax, msyaccelerationmax, mszaccelerationmax,
-                                        msbaccelerationmax, xsxaccelerationmax, ysyaccelerationmax,
-                                        msxvelocityrms, msyvelocityrms, mszvelocityrms, msbvelocityrms,
-                                        xsxvelocityrms, ysyvelocityrms)
+                                        xsxaccelerationmax, ysyaccelerationmax,msxaccelerationrms, 
+                                        msyaccelertaionrms, xsxaccelerationrms, ysyaccelerationrms)
                 values (:cncid, to_date(:time, 'YYYY-MM-DD HH24:MI:SS'),
-                        :heatno, :msavepower, :xsavepower, :ysavepower,
-                        :zsavepower, :bsavepower, :vsavepower, :msstdpower,
-                        :xstdpower, :ystdpower, :zstdpower, :bstdpower, :vstdpower,
+                        :msavepower, :xsmedpower, :ysmedpower,
+                        :zsmedpower, :bsmedpower, :vsmedpower, :msstdpower,
+                        :xildpower, :yildpower, :zildpower, :bildpower, :vildpower,
                         :msxaccelerationmax, :msyaccelerationmax, :mszaccelerationmax,
-                        :msbaccelerationmax, :xsxaccelerationmax, :ysyaccelerationmax,
-                        :msxvelocityrms, :msyvelocityrms, :mszvelocityrms, :msbvelocityrms,
-                        :xsxvelocityrms, :ysyvelocityrms)
+                        :xsxaccelerationmax, :ysyaccelerationmax, :msxaccelerationrms, 
+                        :msyaccelertaionrms, :xsxaccelerationrms, :ysyaccelerationrms)
                 """
                 parameters = {'cncid':self.jsonobj['CncId'], 'time':self.jsonobj['Time'],
-                            'heatno':self.jsonobj['HeatNO'], 'msavepower':self.jsonobj['MSAvePower'],
-                            'xsavepower':self.jsonobj['XSAvePower'], 'ysavepower':self.jsonobj['YSAvePower'],
-                            'zsavepower':self.jsonobj['ZSAvePower'], 'bsavepower':self.jsonobj['BSAvePower'],
-                            'vsavepower':self.jsonobj['VSAvePower'], 'msstdpower':self.jsonobj['MSStdPower'],
-                            'xstdpower':self.jsonobj['XStdPower'], 'ystdpower':self.jsonobj['YStdPower'],
-                            'zstdpower':self.jsonobj['ZStdPower'], 'bstdpower':self.jsonobj['BStdPower'],
-                            'vstdpower':self.jsonobj['VStdPower'], 'msxaccelerationmax':self.jsonobj['MSXAccelerationMax'],
-                            'msyaccelerationmax':self.jsonobj['MSYAccelerationMax'], 'mszaccelerationmax':self.jsonobj['MSZAccelerationMax'],
-                            'msbaccelerationmax':self.jsonobj['MSBAccelerationMax'], 'xsxaccelerationmax':self.jsonobj['XSXAccelerationMax'],
-                            'ysyaccelerationmax':self.jsonobj['YSYAccelerationMax'], 'msxvelocityrms':self.jsonobj['MSXVelocityRMS'],
-                            'msyvelocityrms':self.jsonobj['MSYVelocityRMS'], 'mszvelocityrms':self.jsonobj['MSZVelocityRMS'],
-                            'msbvelocityrms':self.jsonobj['MSBVelocityRMS'], 'xsxvelocityrms':self.jsonobj['XSXVelocityRMS'],
-                            'ysyvelocityrms':self.jsonobj['YSYVelocityRMS']}
+                            'msavepower':self.jsonobj['MSAvePower'], 'xsmedpower':self.jsonobj['XSMedPower'],
+                            'ysmedpower':self.jsonobj['YSMedPower'], 'zsmedpower':self.jsonobj['ZSMedPower'], 
+                            'bsmedpower':self.jsonobj['BSMedPower'], 'vsmedpower':self.jsonobj['VSMedPower'], 
+                            'msstdpower':self.jsonobj['MSStdPower'],
+                            'xildpower':self.jsonobj['XIldPower'], 'yildpower':self.jsonobj['YIldPower'],
+                            'zildpower':self.jsonobj['ZIldPower'], 'bildpower':self.jsonobj['BIldPower'],
+                            'vildpower':self.jsonobj['VIldPower'], 
+                            'msxaccelerationmax':self.jsonobj['MSXAccelerationMax'],
+                            'msyaccelerationmax':self.jsonobj['MSYAccelerationMax'], 
+                            'mszaccelerationmax':self.jsonobj['MSZAccelerationMax'],
+                            'xsxaccelerationmax':self.jsonobj['XSXAccelerationMax'],
+                            'ysyaccelerationmax':self.jsonobj['YSYAccelerationMax'], 
+                            'msxaccelerationrms':self.jsonobj['MSXAccelerationRMS'],
+                            'msyaccelertaionrms':self.jsonobj['MSYAccelerationRMS'], 
+                            'xsxaccelerationrms':self.jsonobj['XSXAccelerationRMS'],
+                            'ysyaccelerationrms':self.jsonobj['YSYAccelerationRMS']}
                 # 插入数据库
                 self.oradb.insert(sqlstr, parameters)
                 # print("热机时加速度有效值写入数据库:" + json.dumps(self.jsonobj))
@@ -266,20 +273,25 @@ class CNCParsing:
             elif self.topic == 'JxsBasic':
                 '''
                 {"CncId":"1","CncNo":"111","PartNo":"222",
-                "Coordinate":{"X":12.123,"Y":23.234,"Z":34.345},
+                "Coordinate":{"X":12.123,"Z1":23.234,"Z2":34.345,"A1":23.234,"A2":34.345},
                 "Time":"2020-01-22 22:53:14"}
                 '''
                 # 给部分可选值设置默认值
                 if 'Coordinate' not in self.jsonobj.keys():
-                    self.jsonobj['Coordinate'] = {}
+                    self.jsonobj['Coordinate']['X'] = 0.0 
+                    self.jsonobj['Coordinate']['Z1'] = 0.0
+                    self.jsonobj['Coordinate']['Z2'] = 0.0
+                    self.jsonobj['Coordinate']['A1'] = 0.0
+                    self.jsonobj['Coordinate']['A2'] = 0.0
                 #生成插入的sql语句
                 sqlstr = """
-                insert into BASIC_MACHINE_HAND (cncid, cncno, partno, x_axis, y_axis, z_axis, time)
-                values (:cncid, :cncno, :partno, :x_axis, :y_axis, :z_axis, to_date(:time, 'YYYY-MM-DD HH24:MI:SS'))
+                insert into BASIC_MACHINE_HAND (cncid, cncno, partno, x_axis, z1_axis, z2_axis, a1_axis, a2_axis, time)
+                values (:cncid, :cncno, :partno, :x_axis, :z1_axis, :z2_axis, :a1_axis, :a2_axis, to_date(:time, 'YYYY-MM-DD HH24:MI:SS'))
                 """
                 parameters = {'cncid':self.jsonobj['CncId'], 'cncno':self.jsonobj['CncNo'],
                               'partno':self.jsonobj['PartNo'], 'x_axis':self.jsonobj['Coordinate']['X'],
-                              'y_axis':self.jsonobj['Coordinate']['Y'],'z_axis':self.jsonobj['Coordinate']['Z'],
+                              'z1_axis':self.jsonobj['Coordinate']['Z1'],'z2_axis':self.jsonobj['Coordinate']['Z2'],
+                              'a1_axis':self.jsonobj['Coordinate']['A1'],'a2_axis':self.jsonobj['Coordinate']['A2'],
                               'time':self.jsonobj['Time']}
                 # 插入数据库  
                 self.oradb.insert(sqlstr, parameters)
@@ -322,32 +334,39 @@ class CNCParsing:
             #机械手自检上传接口
             elif self.topic == 'JxsSelftest':
                 '''
-                {"CncId":"1","XAvePower":1,"Z1AvePower":1,"Z2AvePower":1,
-                 "A1AvePower":1,"A2AvePower":1,"XStdPower":1,"Z1StdPower":1,
-                 "Z2StdPower":1,"A1StdPower":1,"A2StdPower":1,
-                 "Time":"2020-01-22 22:53:14"}
+                 {"CncId":"1","XPowerMax":1,"Z1PowerMax":1,"Z2PowerMax":1,
+                  "A1PowerMax":1,"A2PowerMax":1,"LY+AccelerationP":1,"LY-AccelerationP":1,
+                  "RY+AccelerationP":1,"RY-AccelerationP":1,"LY+AccelerationHP":1,
+                  "RY+AccelerationHP":1,"LY+AccelerationLP":1,"RY+AccelerationLP":1,
+                  "LY+AccelerationRMS":1,"RY+AccelerationRMS":1,"Time":"2020-01-22 22:53:14"}
                 '''
                 #生成插入的sql语句
                 sqlstr = """
-                insert into MACHINE_HAND_SELFTEST (cncid, xavepower, z1avepower, z2avepower, 
-                                        a1avepower, a2avepower, xstdpower, z1stdpower, 
-                                        z2stdpower, a1stdpower, a2stdpower, time)
-                values (:cncid, :xavepower, :z1avepower, :z2avepower, 
-                        :a1avepower, :a2avepower, :xstdpower, :z1stdpower, 
-                        :z2stdpower, :a1stdpower, :a2stdpower, 
+                insert into MACHINE_HAND_SELFTEST (cncid, xpowermax, z1powermax, z2powermax, 
+                                        a1powermax, a2powermax, 
+                                        ly_up_accelerationp, ly_dn_accelerationp,
+                                        ry_up_accelerationp, ry_dn_acceleartionp,
+                                        ly_up_accelerationhp, ry_up_accelerationhp,
+                                        ly_up_accelerationlp, ry_up_accelerationlp,
+                                        ly_up_accelerationrms, ry_up_accelerationrms,
+                                        time)
+                values (:cncid, :xpowermax, :z1powermax, :z2powermax, 
+                        :a1powermax, :a2powermax, 
+                        :ly_up_accelerationp, :ly_dn_accelerationp,
+                        :ry_up_accelerationp, :ry_dn_acceleartionp,
+                        :ly_up_accelerationhp, :ry_up_accelerationhp,
+                        :ly_up_accelerationlp, :ry_up_accelerationlp,
+                        :ly_up_accelerationrms, :ry_up_accelerationrms,
                         to_date(:time, 'YYYY-MM-DD HH24:MI:SS'))
                 """
-                parameters = {'cncid':self.jsonobj['CncId'], 
-                              'xavepower':self.jsonobj['XAvePower'],  
-                              'z1avepower':self.jsonobj['Z1AvePower'],
-                              'z2avepower':self.jsonobj['Z2AvePower'],
-                              'a1avepower':self.jsonobj['A1AvePower'],
-                              'a2avepower':self.jsonobj['A2AvePower'],
-                              'xstdpower':self.jsonobj['XStdPower'],
-                              'z1stdpower':self.jsonobj['Z1StdPower'],
-                              'z2stdpower':self.jsonobj['Z2StdPower'],
-                              'a1stdpower':self.jsonobj['A1StdPower'],
-                              'a2stdpower':self.jsonobj['A2StdPower'],
+                parameters = {'cncid': self.jsonobj['CncId'], 'xpowermax': self.jsonobj['XPowerMax'], 
+                              'z1powermax': self.jsonobj['Z1PowerMax'], 'z2powermax': self.jsonobj['Z2PowerMax'], 
+                              'a1powermax': self.jsonobj['A1PowerMax'], 'a2powermax': self.jsonobj['A2PowerMax'], 
+                              'ly_up_accelerationp': self.jsonobj['LY+AccelerationP'], 'ly_dn_accelerationp': self.jsonobj['LY-AccelerationP'],
+                              'ry_up_accelerationp': self.jsonobj['RY+AccelerationP'], 'ry_dn_acceleartionp': self.jsonobj['RY-AccelerationP'],
+                              'ly_up_accelerationhp': self.jsonobj['LY+AccelerationHP'], 'ry_up_accelerationhp': self.jsonobj['RY+AccelerationHP'],
+                              'ly_up_accelerationlp': self.jsonobj['LY+AccelerationLP'], 'ry_up_accelerationlp': self.jsonobj['RY+AccelerationLP'],
+                              'ly_up_accelerationrms': self.jsonobj['LY+AccelerationRMS'], 'ry_up_accelerationrms': self.jsonobj['RY+AccelerationRMS'],
                               'time':self.jsonobj['Time']}
                 # 插入数据库  
                 self.oradb.insert(sqlstr, parameters)
@@ -357,10 +376,10 @@ class CNCParsing:
             #--------------------------其他Transfer机床数据上传--------------------------
             elif self.topic == 'Transferdata':
                 '''
-                {"machineID":"1","vibration1":23.234,"vibration2":23.234,
-                "vibration3":23.234,"vibration4":23.234,"vibration5":23.234,
-                "vibration6":23.234,"Temp1":30.03,"Temp2":30.03,"Temp3":30.03,
-                "Temp4":30.03,"Temp5":30.03,"Temp6":30.03,"Time":"2020-01-22 22:53:14"}
+                {"CncId":"1","vibration1":23.234,"vibration2":23.234,"vibration3":23.234,
+                 "vibration4":23.234,"vibration5":23.234,"vibration6":23.234,
+                 "Temp1":30.03,"Temp2":30.03,"Temp3":30.03,"Temp4":30.03,"Temp5":30.03,
+                 "Temp6":30.03,"Time":"2020-01-22 22:53:14"}
                 '''
                 # 给部分可选值设置默认值
                 if 'vibration1' not in self.jsonobj.keys():
@@ -389,16 +408,16 @@ class CNCParsing:
                     self.jsonobj['Temp6'] = 0.0
                 #生成插入的sql语句
                 sqlstr = """
-                insert into BASIC_OTHER_MACHINE (machine_id, time, vibration1, vibration2,
+                insert into BASIC_OTHER_MACHINE (cncid, time, vibration1, vibration2,
                                                 vibration3, vibration4, vibration5,
                                                 vibration6, temp1, temp2, temp3, temp4,
                                                 temp5, temp6)
-                values (:machine_id, to_date(:time, 'YYYY-MM-DD HH24:MI:SS'),
+                values (:cncid, to_date(:time, 'YYYY-MM-DD HH24:MI:SS'),
                         :vibration1, :vibration2, :vibration3, :vibration4,
                         :vibration5, :vibration6, :temp1, :temp2, :temp3, :temp4,
                         :temp5, :temp6)
                 """
-                parameters = {'machine_id':self.jsonobj['machineID'], 'time':self.jsonobj['Time'],
+                parameters = {'cncid':self.jsonobj['CncId'], 'time':self.jsonobj['Time'],
                             'vibration1':self.jsonobj['vibration1'],
                             'vibration2':self.jsonobj['vibration2'],
                             'vibration3':self.jsonobj['vibration3'],
