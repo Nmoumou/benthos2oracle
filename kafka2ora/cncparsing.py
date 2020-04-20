@@ -60,7 +60,7 @@ class CNCParsing:
                             'coordinate':json.dumps(self.jsonobj['Coordinate'])}
                 # 插入数据库  
                 self.oradb.insert(sqlstr, parameters)
-                print("机床基础信息写入数据库:" + json.dumps(self.jsonobj))
+                # print("机床基础信息写入数据库:" + json.dumps(self.jsonobj))
                 # logger.writeLog('机床基础信息写入数据库->' + json.dumps(self.jsonobj), "database.log")
             # 主轴三向震动
             elif self.topic == 'vibration':
@@ -93,7 +93,7 @@ class CNCParsing:
                             'time':self.jsonobj['Time']}
                 # 插入数据库   
                 self.oradb.insert(sqlstr, parameters)
-                print("主轴三向震动写入数据库:" + json.dumps(self.jsonobj)) 
+                # print("主轴三向震动写入数据库:" + json.dumps(self.jsonobj)) 
                 # logger.writeLog('主轴三向震动写入数据库->' + json.dumps(self.jsonobj), "database.log")
             #刀具功率磨损值
             elif self.topic == 'Abrpower': 
@@ -122,7 +122,7 @@ class CNCParsing:
                             'msxx':self.jsonobj['AbrPower']['Msxx']}
                 # 插入数据库
                 self.oradb.insert(sqlstr, parameters)
-                print("刀具功率磨损值写入数据库:" + json.dumps(self.jsonobj))
+                # print("刀具功率磨损值写入数据库:" + json.dumps(self.jsonobj))
                 # logger.writeLog('刀具功率磨损值写入数据库->' + json.dumps(self.jsonobj), "database.log")
             #主轴方向加速度振动磨损值接口
             elif self.topic == 'Abracceleration':
@@ -164,7 +164,7 @@ class CNCParsing:
                             'msxx':self.jsonobj['AbrAcceleration']['Msxx']}
                 # 插入数据库
                 self.oradb.insert(sqlstr, parameters)
-                print("主轴方向加速度振动磨损写入数据库:" + json.dumps(self.jsonobj))
+                # print("主轴方向加速度振动磨损写入数据库:" + json.dumps(self.jsonobj))
                 # logger.writeLog('主轴方向加速度振动磨损写入数据库->' + json.dumps(self.jsonobj), "database.log")
 
             #主轴方向速度振动磨损值接口
@@ -206,7 +206,7 @@ class CNCParsing:
                             'msxx':self.jsonobj['AbrVelocity']['Msxx']}
                 # 插入数据库
                 self.oradb.insert(sqlstr, parameters)
-                print("主轴方向速度振动磨损写入数据库:" + json.dumps(self.jsonobj))
+                # print("主轴方向速度振动磨损写入数据库:" + json.dumps(self.jsonobj))
                 # logger.writeLog('主轴方向速度振动磨损写入数据库->' + json.dumps(self.jsonobj), "database.log")
             #热机时加速度有效值接口
             elif self.topic == 'Machineheat':
@@ -258,7 +258,7 @@ class CNCParsing:
                             'ysyvelocityrms':self.jsonobj['YSYVelocityRMS']}
                 # 插入数据库
                 self.oradb.insert(sqlstr, parameters)
-                print("热机时加速度有效值写入数据库:" + json.dumps(self.jsonobj))
+                # print("热机时加速度有效值写入数据库:" + json.dumps(self.jsonobj))
                 # logger.writeLog('热机时加速度有效值写入数据库->' + json.dumps(self.jsonobj), "database.log")
         
             #--------------------------机械手部分-----------------
@@ -283,7 +283,7 @@ class CNCParsing:
                               'time':self.jsonobj['Time']}
                 # 插入数据库  
                 self.oradb.insert(sqlstr, parameters)
-                print("机械手基础信息写入数据库:" + json.dumps(self.jsonobj))
+                # print("机械手基础信息写入数据库:" + json.dumps(self.jsonobj))
                 # logger.writeLog('机械手基础信息写入数据库->' + json.dumps(self.jsonobj), "database.log")
             
             #机械手振动接口
@@ -316,7 +316,7 @@ class CNCParsing:
                               'time':self.jsonobj['Time']}
                 # 插入数据库  
                 self.oradb.insert(sqlstr, parameters)
-                print("机械手震动信息写入数据库:" + json.dumps(self.jsonobj))
+                # print("机械手震动信息写入数据库:" + json.dumps(self.jsonobj))
                 # logger.writeLog('机械手震动信息写入数据库->' + json.dumps(self.jsonobj), "database.log")
             
             #机械手自检上传接口
@@ -351,7 +351,7 @@ class CNCParsing:
                               'time':self.jsonobj['Time']}
                 # 插入数据库  
                 self.oradb.insert(sqlstr, parameters)
-                print("机械手自检写入数据库:" + json.dumps(self.jsonobj))
+                # print("机械手自检写入数据库:" + json.dumps(self.jsonobj))
                 # logger.writeLog('机械手自检写入数据库->' + json.dumps(self.jsonobj), "database.log")
 
             #--------------------------其他Transfer机床数据上传--------------------------
@@ -411,7 +411,7 @@ class CNCParsing:
                             }
                 # 插入数据库
                 self.oradb.insert(sqlstr, parameters)
-                print("其他Transfer机床数据写入数据库:" + json.dumps(self.jsonobj))
+                # print("其他Transfer机床数据写入数据库:" + json.dumps(self.jsonobj))
                 # logger.writeLog('其他Transfer机床数据写入数据库->' + json.dumps(self.jsonobj), "database.log")
             else:
                 logger.writeLog("传入值异常，未找到匹配项!")
