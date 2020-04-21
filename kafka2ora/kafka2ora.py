@@ -14,9 +14,9 @@ if __name__ == "__main__":
         cncparse = CNCParsing()
         for message in consumer:
             # 解析并存入Oracle数据
-            kmsg = message.value.decode('utf-8')
-            resmsg =json.loads(kmsg)
             try:
+                kmsg = message.value.decode('utf-8')
+                resmsg =json.loads(kmsg)
                 cncparse.parse(resmsg['topic'], resmsg)
             except:
                 errstr = traceback.format_exc()
