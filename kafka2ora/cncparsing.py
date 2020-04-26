@@ -51,12 +51,12 @@ class CNCParsing:
                 sqlstr = """
                 insert into BASIC_MACHINE (cncid, runstatus, poweronstatus, 
                                         alarm, time, spindletemp, envtemp, 
-                                        cutflutemp, slidertemp, x_axis, y_axis, z_zxis,
+                                        cutflutemp, slidertemp, x_axis, y_axis, z_axis,
                                         b_axis, cs_axis, v_axis)
-                values (:cncid, :pingstr, :runstatus, 
+                values (:cncid, :runstatus, 
                         :poweronstatus, :alarm, to_date(:time, 'YYYY-MM-DD HH24:MI:SS'), 
                         :spindletemp, :envtemp, :cutflutemp, :slidertemp, :x_axis,
-                        :y_axis, :z_zxis, :b_axis, :cs_axis, :v_axis)
+                        :y_axis, :z_axis, :b_axis, :cs_axis, :v_axis)
                 """
                 parameters = {'cncid':self.jsonobj['CncId'], 
                             'runstatus':self.jsonobj['RunStatus'], 'poweronstatus':self.jsonobj['PoweronStatus'], 
@@ -64,7 +64,7 @@ class CNCParsing:
                             'spindletemp':self.jsonobj['SpindleTemp'], 'envtemp':self.jsonobj['EnvTemp'], 
                             'cutflutemp':self.jsonobj['CutfluTemp'], 'slidertemp':self.jsonobj['SliderTemp'], 
                             'x_axis':self.jsonobj['Coordinate']['X'], 'y_axis':self.jsonobj['Coordinate']['Y'], 
-                            'z_zxis':self.jsonobj['Coordinate']['Z'], 'b_axis':self.jsonobj['Coordinate']['B'],
+                            'z_axis':self.jsonobj['Coordinate']['Z'], 'b_axis':self.jsonobj['Coordinate']['B'],
                             'cs_axis':self.jsonobj['Coordinate']['CS'], 'v_axis':self.jsonobj['Coordinate']['V']}
                 # 插入数据库  
                 self.oradb.insert(sqlstr, parameters)
