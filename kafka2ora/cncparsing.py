@@ -244,7 +244,7 @@ class CNCParsing:
                         :xildpower, :yildpower, :zildpower, :bildpower, :vildpower,
                         :msxaccelerationmax, :msyaccelerationmax, :mszaccelerationmax,
                         :xsxaccelerationmax, :ysyaccelerationmax, :msxaccelerationrms, 
-                        :msyaccelertaionrms, :xsxaccelerationrms, :ysyaccelerationrms)
+                        :msyaccelerationrms, :xsxaccelerationrms, :ysyaccelerationrms)
                 """
                 parameters = {'cncid':self.jsonobj['CncId'], 'time':self.jsonobj['Time'],
                             'msavepower':self.jsonobj['MSAvePower'], 'xsmedpower':self.jsonobj['XSMedPower'],
@@ -260,7 +260,7 @@ class CNCParsing:
                             'xsxaccelerationmax':self.jsonobj['XSXAccelerationMax'],
                             'ysyaccelerationmax':self.jsonobj['YSYAccelerationMax'], 
                             'msxaccelerationrms':self.jsonobj['MSXAccelerationRMS'],
-                            'msyaccelertaionrms':self.jsonobj['MSYAccelerationRMS'], 
+                            'msyaccelerationrms':self.jsonobj['MSYAccelerationRMS'], 
                             'xsxaccelerationrms':self.jsonobj['XSXAccelerationRMS'],
                             'ysyaccelerationrms':self.jsonobj['YSYAccelerationRMS']}
                 # 插入数据库
