@@ -1,12 +1,14 @@
 oracle:
-    server: 192.0.0.1
+    server: 127.0.0.1
     port: 1521
-    servicename: testname
+    servicename: name
     user: user
     password: pass
 kafka:
     server: 
         - 127.0.0.1:9092
-    topic: cncmqtt3
-    consumergroup: cncinfo
-    consumerid: pythonkafka1
+        - 127.0.0.1:9092
+        - 127.0.0.1:9092
+    topic: test
+    consumergroup: test
+    consumerid: test

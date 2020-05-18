@@ -39,7 +39,8 @@ class CncKafka:
             consumer = KafkaConsumer(self.kafkatopic,
                          group_id=self.consumergroup,
                          client_id=self.consumerid,
-                         bootstrap_servers=self.kafkahosts)
+                         bootstrap_servers=self.kafkahosts,
+                         auto_offset_reset = 'earliest')
             logger.writeLog("Kafka消费者初始化成功", "kafka.log")
             return consumer
         except:

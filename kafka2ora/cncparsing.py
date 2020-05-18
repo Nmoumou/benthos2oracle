@@ -133,7 +133,7 @@ class CNCParsing:
                 # print("刀具功率磨损值写入数据库:" + json.dumps(self.jsonobj))
                 # logger.writeLog('刀具功率磨损值写入数据库->' + json.dumps(self.jsonobj), "database.log")
             #主轴方向加速度振动磨损值接口
-            elif self.topic == 'Abracceleration':
+            elif self.topic.find('Abracceleration') != -1:
                 '''
                     {"CncId":"1",
                     "AbrAcceleration":{"ToolNo":1,
@@ -176,7 +176,7 @@ class CNCParsing:
                 # logger.writeLog('主轴方向加速度振动磨损写入数据库->' + json.dumps(self.jsonobj), "database.log")
 
             #主轴方向速度振动磨损值接口
-            elif self.topic == 'Abrvelocity':
+            elif self.topic.find('Abrvelocity') != -1:
                 '''
                 {"CncId":"1",
                 "AbrVelocity":{"ToolNo":1,
@@ -219,15 +219,7 @@ class CNCParsing:
             #热机时加速度有效值接口
             elif self.topic == 'Machineheat':
                 '''
-               {"CncId":"1",
-               "MSAvePower":23.234,"XSMedPower":34.345,
-               "YSMedPower":20.222,"ZSMedPower":21.234,
-               "BSMedPower":21.234,"VSMedPower":21.234,
-               "MSStdPower":1,"XIldPower":1,"YIldPower":1,
-               "ZIldPower":1,"BIldPower":1,"VIldPower":1,
-               "MSXAccelerationMax":1,"MSYAccelerationMax":1,"XSXAccelerationMax":1,
-               "YSYAccelerationMax":1,"MSXAccelerationRMS":1,"MSYAccelerationRMS":1,
-               "XSXAccelerationRMS":1,"YSYAccelerationRMS":1,"Time":"2020-01-22 22:53:14"}
+               {"CncId":"1","MSAvePower":23.234,"XSMedPower":34.345,"YSMedPower":20.222,"ZSMedPower":21.234,"BSMedPower":21.234,"VSMedPower":21.234,"MSStdPower":1,"XIldPower":1,"YIldPower":1,"ZIldPower":1,"BIldPower":1,"VIldPower":1,"MSXAccelerationMax":1,"MSYAccelerationMax":1,"XSXAccelerationMax":1,"YSYAccelerationMax":1,"MSXVelocityRMS":1,"MSYVelocityRMS":1,"XSXVelocityRMS":1,"YSYVelocityRMS":1,"MSZAccelerationMax":1,"MSZVelocityRMS":1,"Time":"2020-01-22 22:53:14"}
                 '''
                 #全是必须值无省略值
                 #生成插入的sql语句
@@ -237,7 +229,7 @@ class CNCParsing:
                                         xildpower, yildpower, zildpower, bildpower, vildpower,
                                         msxaccelerationmax, msyaccelerationmax, mszaccelerationmax,
                                         xsxaccelerationmax, ysyaccelerationmax,msxaccelerationrms, 
-                                        msyaccelertaionrms, xsxaccelerationrms, ysyaccelerationrms)
+                                        msyaccelerationrms, xsxaccelerationrms, ysyaccelerationrms)
                 values (:cncid, to_date(:time, 'YYYY-MM-DD HH24:MI:SS'),
                         :msavepower, :xsmedpower, :ysmedpower,
                         :zsmedpower, :bsmedpower, :vsmedpower, :msstdpower,
@@ -433,7 +425,7 @@ class CNCParsing:
                 # print("其他Transfer机床数据写入数据库:" + json.dumps(self.jsonobj))
                 # logger.writeLog('其他Transfer机床数据写入数据库->' + json.dumps(self.jsonobj), "database.log")
             else:
-                logger.writeLog("传入值异常，未找到匹配项!")
+                logger.writeLog("传入值异常，未找到匹配项!" + json.dumps(self.jsonobj))
         except:
             errstr = traceback.format_exc()
             logger.writeLog("CNC字段解析程序失败:" + errstr + json.dumps(self.jsonobj))
