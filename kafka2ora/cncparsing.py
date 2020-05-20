@@ -41,6 +41,7 @@ class CNCParsing:
                 if 'Alarm' not in self.jsonobj.keys():
                     self.jsonobj['Alarm'] = ''
                 if 'Coordinate' not in self.jsonobj.keys():
+                    self.jsonobj['Coordinate'] = {}
                     self.jsonobj['Coordinate']['X'] = 0.0
                     self.jsonobj['Coordinate']['Y'] = 0.0
                     self.jsonobj['Coordinate']['Z'] = 0.0
@@ -73,13 +74,10 @@ class CNCParsing:
             # 主轴三向震动
             elif self.topic == 'vibration':
                 '''
+                该表暂时删除
                 {"CncId":"1",
-                "Xvibration":1.123,
-                "Yvibration":1.123,
-                "Zvibration":1.123,
-                "XvibrationP":1.123,
-                "YvibrationP":1.123,
-                "ZvibrationP":1.123,
+                "Xvibration":1.123,"Yvibration":1.123,"Zvibration":1.123,
+                "XvibrationP":1.123,"YvibrationP":1.123,"ZvibrationP":1.123,
                 "Time":"2020-01-22 22:53:14"
                 }
                 '''
@@ -219,7 +217,12 @@ class CNCParsing:
             #热机时加速度有效值接口
             elif self.topic == 'Machineheat':
                 '''
-               {"CncId":"1","MSAvePower":23.234,"XSMedPower":34.345,"YSMedPower":20.222,"ZSMedPower":21.234,"BSMedPower":21.234,"VSMedPower":21.234,"MSStdPower":1,"XIldPower":1,"YIldPower":1,"ZIldPower":1,"BIldPower":1,"VIldPower":1,"MSXAccelerationMax":1,"MSYAccelerationMax":1,"XSXAccelerationMax":1,"YSYAccelerationMax":1,"MSXVelocityRMS":1,"MSYVelocityRMS":1,"XSXVelocityRMS":1,"YSYVelocityRMS":1,"MSZAccelerationMax":1,"MSZVelocityRMS":1,"Time":"2020-01-22 22:53:14"}
+                {"CncId":"1","MSAvePower":23.234,"XSMedPower":34.345,"YSMedPower":20.222,
+                "ZSMedPower":21.234,"BSMedPower":21.234,"VSMedPower":21.234,"MSStdPower":1,
+                "XIldPower":1,"YIldPower":1,"ZIldPower":1,"BIldPower":1,"VIldPower":1,
+                "MSXAccelerationMax":1,"MSYAccelerationMax":1,"XSXAccelerationMax":1,"YSYAccelerationMax":1,
+                "MSXVelocityRMS":1,"MSYVelocityRMS":1,"XSXVelocityRMS":1,"YSYVelocityRMS":1,
+                "MSZAccelerationMax":1,"MSZVelocityRMS":1,"Time":"2020-01-22 22:53:14"}				
                 '''
                 #全是必须值无省略值
                 #生成插入的sql语句
@@ -228,15 +231,15 @@ class CNCParsing:
                                         zsmedpower, bsmedpower, vsmedpower, msstdpower,
                                         xildpower, yildpower, zildpower, bildpower, vildpower,
                                         msxaccelerationmax, msyaccelerationmax, mszaccelerationmax,
-                                        xsxaccelerationmax, ysyaccelerationmax,msxaccelerationrms, 
-                                        msyaccelerationrms, xsxaccelerationrms, ysyaccelerationrms)
+                                        xsxaccelerationmax, ysyaccelerationmax, msxvelocityrms, 
+                                        msyvelocityrms, mszvelocityrms, xsxvelocityrms, ysyvelocityrms)
                 values (:cncid, to_date(:time, 'YYYY-MM-DD HH24:MI:SS'),
                         :msavepower, :xsmedpower, :ysmedpower,
                         :zsmedpower, :bsmedpower, :vsmedpower, :msstdpower,
                         :xildpower, :yildpower, :zildpower, :bildpower, :vildpower,
                         :msxaccelerationmax, :msyaccelerationmax, :mszaccelerationmax,
-                        :xsxaccelerationmax, :ysyaccelerationmax, :msxaccelerationrms, 
-                        :msyaccelerationrms, :xsxaccelerationrms, :ysyaccelerationrms)
+                        :xsxaccelerationmax, :ysyaccelerationmax, :msxvelocityrms, 
+                        :msyvelocityrms, :mszvelocityrms, :xsxvelocityrms, :ysyvelocityrms)
                 """
                 parameters = {'cncid':self.jsonobj['CncId'], 'time':self.jsonobj['Time'],
                             'msavepower':self.jsonobj['MSAvePower'], 'xsmedpower':self.jsonobj['XSMedPower'],
@@ -251,10 +254,11 @@ class CNCParsing:
                             'mszaccelerationmax':self.jsonobj['MSZAccelerationMax'],
                             'xsxaccelerationmax':self.jsonobj['XSXAccelerationMax'],
                             'ysyaccelerationmax':self.jsonobj['YSYAccelerationMax'], 
-                            'msxaccelerationrms':self.jsonobj['MSXAccelerationRMS'],
-                            'msyaccelerationrms':self.jsonobj['MSYAccelerationRMS'], 
-                            'xsxaccelerationrms':self.jsonobj['XSXAccelerationRMS'],
-                            'ysyaccelerationrms':self.jsonobj['YSYAccelerationRMS']}
+                            'msxvelocityrms':self.jsonobj['MSXVelocityRMS'],
+                            'msyvelocityrms':self.jsonobj['MSYVelocityRMS'],
+                            'mszvelocityrms':self.jsonobj['MSZVelocityRMS'],
+                            'xsxvelocityrms':self.jsonobj['XSXVelocityRMS'],
+                            'ysyvelocityrms':self.jsonobj['YSYVelocityRMS']}
                 # 插入数据库
                 self.oradb.insert(sqlstr, parameters)
                 # print("热机时加速度有效值写入数据库:" + json.dumps(self.jsonobj))
@@ -270,6 +274,7 @@ class CNCParsing:
                 '''
                 # 给部分可选值设置默认值
                 if 'Coordinate' not in self.jsonobj.keys():
+                    self.jsonobj['Coordinate'] = {}
                     self.jsonobj['Coordinate']['X'] = 0.0 
                     self.jsonobj['Coordinate']['Z1'] = 0.0
                     self.jsonobj['Coordinate']['Z2'] = 0.0
@@ -337,7 +342,7 @@ class CNCParsing:
                 insert into MACHINE_HAND_SELFTEST (cncid, xpowermax, z1powermax, z2powermax, 
                                         a1powermax, a2powermax, 
                                         ly_up_accelerationp, ly_dn_accelerationp,
-                                        ry_up_accelerationp, ry_dn_acceleartionp,
+                                        ry_up_accelerationp, ry_dn_accelerationp,
                                         ly_up_accelerationhp, ry_up_accelerationhp,
                                         ly_up_accelerationlp, ry_up_accelerationlp,
                                         ly_up_accelerationrms, ry_up_accelerationrms,
@@ -345,7 +350,7 @@ class CNCParsing:
                 values (:cncid, :xpowermax, :z1powermax, :z2powermax, 
                         :a1powermax, :a2powermax, 
                         :ly_up_accelerationp, :ly_dn_accelerationp,
-                        :ry_up_accelerationp, :ry_dn_acceleartionp,
+                        :ry_up_accelerationp, :ry_dn_accelerationp,
                         :ly_up_accelerationhp, :ry_up_accelerationhp,
                         :ly_up_accelerationlp, :ry_up_accelerationlp,
                         :ly_up_accelerationrms, :ry_up_accelerationrms,
@@ -355,7 +360,7 @@ class CNCParsing:
                               'z1powermax': self.jsonobj['Z1PowerMax'], 'z2powermax': self.jsonobj['Z2PowerMax'], 
                               'a1powermax': self.jsonobj['A1PowerMax'], 'a2powermax': self.jsonobj['A2PowerMax'], 
                               'ly_up_accelerationp': self.jsonobj['LY+AccelerationP'], 'ly_dn_accelerationp': self.jsonobj['LY-AccelerationP'],
-                              'ry_up_accelerationp': self.jsonobj['RY+AccelerationP'], 'ry_dn_acceleartionp': self.jsonobj['RY-AccelerationP'],
+                              'ry_up_accelerationp': self.jsonobj['RY+AccelerationP'], 'ry_dn_accelerationp': self.jsonobj['RY-AccelerationP'],
                               'ly_up_accelerationhp': self.jsonobj['LY+AccelerationHP'], 'ry_up_accelerationhp': self.jsonobj['RY+AccelerationHP'],
                               'ly_up_accelerationlp': self.jsonobj['LY+AccelerationLP'], 'ry_up_accelerationlp': self.jsonobj['RY+AccelerationLP'],
                               'ly_up_accelerationrms': self.jsonobj['LY+AccelerationRMS'], 'ry_up_accelerationrms': self.jsonobj['RY+AccelerationRMS'],
