@@ -48,15 +48,18 @@ class DatabaseAdapter:
         '''
         数据库插入
         需要采用绑定变量的方式进行，否则会有安全问题
+        插入成功返回True,失败返回False
         '''
         # para = { dept_id=280, dept_name="Facility" }
         # cursor.execute("""
         # insert into departments (department_id, department_name)
         # values (:dept_id, :dept_name)""", data)
+        res = False
         try:
             if self.cursor:
                 self.cursor.execute(sqlstr, para)
                 self.conn.commit()
+                res = True
             else:
                 #进行重连
                 logger.writeLog("Oracle数据库尝试重新连接","insertfail.log")
@@ -64,11 +67,16 @@ class DatabaseAdapter:
                 if self.cursor:
                     self.cursor.execute(sqlstr, para)
                     self.conn.commit()
+                    res = True
                 else:
+                    res = False
                     logger.writeLog("Oracle数据库重连插入失败:" + sqlstr + json.dumps(para),"insertfail.log")  
         except:
+            res = False
             errstr = traceback.format_exc()
             logger.writeLog("Oracle数据库插入失败:" + errstr + sqlstr + json.dumps(para),"insertfail.log")
+        finally:
+            return res
             
 
     def search(self, sqlstr, para=None):

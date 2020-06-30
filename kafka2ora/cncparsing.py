@@ -18,28 +18,46 @@ class CNCParsing:
 
     # 根据主题及内容使用不同的方法处理数据
     def parse(self, topic,jsonobj):
+        res = False
         self.topic = topic
         self.jsonobj = jsonobj
         try:
             #--------------------------机床部分-----------------------------
             #机床基础信息
             if self.topic == 'Basic':
-                '''
-                {"CncId":"1",
+                '''{
+                "CncId":"1",
                 "RunStatus":"0",
                 "PoweronStatus":"0",
                 "Alarm":"报警信息",
-                "Time":"2020-01-22 22:53:14",
-                "SpindleTemp":23.567,
-                "EnvTemp":23.678,
-                "CutfluTemp":23.789,
-                "SliderTemp":23.891,
-                "Coordinate":{"X":12.123,"Y":23.234,"Z":34.345,"B":34.345,"CS":34.345,"V":34.345}
-                }
-                '''
+                "Time":"2020-01-22 22:53:14" 
+                }'''
                 # 给部分可选值设置默认值
                 if 'Alarm' not in self.jsonobj.keys():
                     self.jsonobj['Alarm'] = ''
+
+                #生成插入的sql语句
+                sqlstr = """
+                insert into BASIC_MACHINE_ALARM (cncid, runstatus, poweronstatus, alarm, time)
+                values (:cncid, :runstatus, :poweronstatus, :alarm, to_date(:time, 'YYYY-MM-DD HH24:MI:SS'))
+                """
+                parameters = {'cncid':self.jsonobj['CncId'], 'runstatus':self.jsonobj['RunStatus'],
+                              'poweronstatus':self.jsonobj['PoweronStatus'],
+                              'alarm':self.jsonobj['Alarm'], 'time':self.jsonobj['Time']}
+                # 插入数据库  
+                # self.oradb.insert(sqlstr, parameters)
+                # print("机床基础信息写入数据库:" + json.dumps(self.jsonobj))
+                # logger.writeLog('机床基础信息写入数据库->' + json.dumps(self.jsonobj), "database.log")
+
+            # 传输温度数据
+            elif self.topic == 'Temp':
+                ''' 
+                {"CncId":"1","SpindleTemp":0,"EnvTemp":0,"CutfluTemp":0,"SliderTemp":0,"Time":"2020-01-22 22:53:14"}				
+				
+                # 有坐标的语句
+                {"CncId":"1","SpindleTemp":0,"EnvTemp":0,"CutfluTemp":0,"SliderTemp":0,"Time":"2020-01-22 22:53:14"},
+                "Coordinate":{"X":12.123,"Y":23.234,"Z":34.345,"B":34.345,"CS":34.345,"V":34.345,}}
+            
                 if 'Coordinate' not in self.jsonobj.keys():
                     self.jsonobj['Coordinate'] = {}
                     self.jsonobj['Coordinate']['X'] = 0.0
@@ -48,29 +66,31 @@ class CNCParsing:
                     self.jsonobj['Coordinate']['B'] = 0.0
                     self.jsonobj['Coordinate']['CS'] = 0.0
                     self.jsonobj['Coordinate']['V'] = 0.0
-                #生成插入的sql语句
+                
                 sqlstr = """
-                insert into BASIC_MACHINE (cncid, runstatus, poweronstatus, 
-                                        alarm, time, spindletemp, envtemp, 
-                                        cutflutemp, slidertemp, x_axis, y_axis, z_axis,
-                                        b_axis, cs_axis, v_axis)
-                values (:cncid, :runstatus, 
-                        :poweronstatus, :alarm, to_date(:time, 'YYYY-MM-DD HH24:MI:SS'), 
-                        :spindletemp, :envtemp, :cutflutemp, :slidertemp, :x_axis,
-                        :y_axis, :z_axis, :b_axis, :cs_axis, :v_axis)
-                """
-                parameters = {'cncid':self.jsonobj['CncId'], 
-                            'runstatus':self.jsonobj['RunStatus'], 'poweronstatus':self.jsonobj['PoweronStatus'], 
-                            'alarm':self.jsonobj['Alarm'], 'time':self.jsonobj['Time'], 
-                            'spindletemp':self.jsonobj['SpindleTemp'], 'envtemp':self.jsonobj['EnvTemp'], 
-                            'cutflutemp':self.jsonobj['CutfluTemp'], 'slidertemp':self.jsonobj['SliderTemp'], 
-                            'x_axis':self.jsonobj['Coordinate']['X'], 'y_axis':self.jsonobj['Coordinate']['Y'], 
-                            'z_axis':self.jsonobj['Coordinate']['Z'], 'b_axis':self.jsonobj['Coordinate']['B'],
-                            'cs_axis':self.jsonobj['Coordinate']['CS'], 'v_axis':self.jsonobj['Coordinate']['V']}
-                # 插入数据库  
-                self.oradb.insert(sqlstr, parameters)
-                # print("机床基础信息写入数据库:" + json.dumps(self.jsonobj))
-                # logger.writeLog('机床基础信息写入数据库->' + json.dumps(self.jsonobj), "database.log")
+                        insert into BASIC_MACHINE_TEMPERATURE (cncid, spindletemp, envtemp, cutflutemp, slidertemp,
+                        time, x_axis, y_axis, z_axis, b_axis, cs_axis, v_axis)
+                        values (:cncid, :spindletemp, :envtemp, :cutflutemp, :slidertemp, to_date(:time, 'YYYY-MM-DD HH24:MI:SS'),
+                        :x_axis, :y_axis, :z_axis, :b_axis, :cs_axis, :v_axis)
+                        """
+                parameters = {'cncid': self.jsonobj['CncId'], 'spindletemp':self.jsonobj['SpindleTemp'],
+                              'envtemp':self.jsonobj['EnvTemp'], 'cutflutemp':self.jsonobj['CutfluTemp'],
+                              'slidertemp':self.jsonobj['SliderTemp'], 'time': self.jsonobj['Time'],
+                              'x_axis': self.jsonobj['Coordinate']['X'], 'y_axis': self.jsonobj['Coordinate']['Y'],
+                              'z_axis': self.jsonobj['Coordinate']['Z'], 'b_axis': self.jsonobj['Coordinate']['B'],
+                              'cs_axis': self.jsonobj['Coordinate']['CS'], 'v_axis': self.jsonobj['Coordinate']['V']}
+                '''
+                # 生成插入的sql语句
+                sqlstr = """
+                        insert into BASIC_MACHINE_TEMPERATURE (cncid, spindletemp, envtemp, cutflutemp, slidertemp, time)
+                        values (:cncid, :spindletemp, :envtemp, :cutflutemp, :slidertemp, to_date(:time, 'YYYY-MM-DD HH24:MI:SS'))
+                        """
+                parameters = {'cncid': self.jsonobj['CncId'], 'spindletemp':self.jsonobj['SpindleTemp'],
+                              'envtemp':self.jsonobj['EnvTemp'], 'cutflutemp':self.jsonobj['CutfluTemp'],
+                              'slidertemp':self.jsonobj['SliderTemp'], 'time': self.jsonobj['Time']}
+                # 插入数据库
+                # self.oradb.insert(sqlstr, parameters)
+
             # 主轴三向震动
             elif self.topic == 'vibration':
                 '''
@@ -98,9 +118,10 @@ class CNCParsing:
                             'zvibrationp':self.jsonobj['ZvibrationP'],
                             'time':self.jsonobj['Time']}
                 # 插入数据库   
-                self.oradb.insert(sqlstr, parameters)
+                # self.oradb.insert(sqlstr, parameters)
                 # print("主轴三向震动写入数据库:" + json.dumps(self.jsonobj)) 
                 # logger.writeLog('主轴三向震动写入数据库->' + json.dumps(self.jsonobj), "database.log")
+
             #刀具功率磨损值
             elif self.topic == 'Abrpower': 
                 '''
@@ -127,9 +148,10 @@ class CNCParsing:
                             'mssx':self.jsonobj['AbrPower']['Mssx'],
                             'msxx':self.jsonobj['AbrPower']['Msxx']}
                 # 插入数据库
-                self.oradb.insert(sqlstr, parameters)
+                # self.oradb.insert(sqlstr, parameters)
                 # print("刀具功率磨损值写入数据库:" + json.dumps(self.jsonobj))
                 # logger.writeLog('刀具功率磨损值写入数据库->' + json.dumps(self.jsonobj), "database.log")
+
             #主轴方向加速度振动磨损值接口
             elif self.topic.find('Abracceleration') != -1:
                 '''
@@ -169,7 +191,7 @@ class CNCParsing:
                             'mssx':self.jsonobj['AbrAcceleration']['Mssx'],
                             'msxx':self.jsonobj['AbrAcceleration']['Msxx']}
                 # 插入数据库
-                self.oradb.insert(sqlstr, parameters)
+                # self.oradb.insert(sqlstr, parameters)
                 # print("主轴方向加速度振动磨损写入数据库:" + json.dumps(self.jsonobj))
                 # logger.writeLog('主轴方向加速度振动磨损写入数据库->' + json.dumps(self.jsonobj), "database.log")
 
@@ -211,9 +233,10 @@ class CNCParsing:
                             'mssx':self.jsonobj['AbrVelocity']['Mssx'],
                             'msxx':self.jsonobj['AbrVelocity']['Msxx']}
                 # 插入数据库
-                self.oradb.insert(sqlstr, parameters)
+                # self.oradb.insert(sqlstr, parameters)
                 # print("主轴方向速度振动磨损写入数据库:" + json.dumps(self.jsonobj))
                 # logger.writeLog('主轴方向速度振动磨损写入数据库->' + json.dumps(self.jsonobj), "database.log")
+
             #热机时加速度有效值接口
             elif self.topic == 'Machineheat':
                 '''
@@ -260,7 +283,7 @@ class CNCParsing:
                             'xsxvelocityrms':self.jsonobj['XSXVelocityRMS'],
                             'ysyvelocityrms':self.jsonobj['YSYVelocityRMS']}
                 # 插入数据库
-                self.oradb.insert(sqlstr, parameters)
+                # self.oradb.insert(sqlstr, parameters)
                 # print("热机时加速度有效值写入数据库:" + json.dumps(self.jsonobj))
                 # logger.writeLog('热机时加速度有效值写入数据库->' + json.dumps(self.jsonobj), "database.log")
         
@@ -273,25 +296,22 @@ class CNCParsing:
                 "Time":"2020-01-22 22:53:14"}
                 '''
                 # 给部分可选值设置默认值
-                if 'Coordinate' not in self.jsonobj.keys():
-                    self.jsonobj['Coordinate'] = {}
-                    self.jsonobj['Coordinate']['X'] = 0.0 
-                    self.jsonobj['Coordinate']['Z1'] = 0.0
-                    self.jsonobj['Coordinate']['Z2'] = 0.0
-                    self.jsonobj['Coordinate']['A1'] = 0.0
-                    self.jsonobj['Coordinate']['A2'] = 0.0
+                # if 'Coordinate' not in self.jsonobj.keys():
+                #     self.jsonobj['Coordinate'] = {}
+                #     self.jsonobj['Coordinate']['X'] = 0.0 
+                #     self.jsonobj['Coordinate']['Z1'] = 0.0
+                #     self.jsonobj['Coordinate']['Z2'] = 0.0
+                #     self.jsonobj['Coordinate']['A1'] = 0.0
+                #     self.jsonobj['Coordinate']['A2'] = 0.0
                 #生成插入的sql语句
                 sqlstr = """
-                insert into BASIC_MACHINE_HAND (cncid, cncno, partno, x_axis, z1_axis, z2_axis, a1_axis, a2_axis, time)
-                values (:cncid, :cncno, :partno, :x_axis, :z1_axis, :z2_axis, :a1_axis, :a2_axis, to_date(:time, 'YYYY-MM-DD HH24:MI:SS'))
+                insert into BASIC_MACHINE_HAND (cncid, cncno, partno, time)
+                values (:cncid, :cncno, :partno, to_date(:time, 'YYYY-MM-DD HH24:MI:SS'))
                 """
                 parameters = {'cncid':self.jsonobj['CncId'], 'cncno':self.jsonobj['CncNo'],
-                              'partno':self.jsonobj['PartNo'], 'x_axis':self.jsonobj['Coordinate']['X'],
-                              'z1_axis':self.jsonobj['Coordinate']['Z1'],'z2_axis':self.jsonobj['Coordinate']['Z2'],
-                              'a1_axis':self.jsonobj['Coordinate']['A1'],'a2_axis':self.jsonobj['Coordinate']['A2'],
-                              'time':self.jsonobj['Time']}
+                              'partno':self.jsonobj['PartNo'], 'time':self.jsonobj['Time']}
                 # 插入数据库  
-                self.oradb.insert(sqlstr, parameters)
+                # self.oradb.insert(sqlstr, parameters)
                 # print("机械手基础信息写入数据库:" + json.dumps(self.jsonobj))
                 # logger.writeLog('机械手基础信息写入数据库->' + json.dumps(self.jsonobj), "database.log")
             
@@ -324,7 +344,7 @@ class CNCParsing:
                               'ry_upper_vibration': self.jsonobj['RY+vibration'],'ry_down_vibration': self.jsonobj['RY-vibration'],
                               'time':self.jsonobj['Time']}
                 # 插入数据库  
-                self.oradb.insert(sqlstr, parameters)
+                # self.oradb.insert(sqlstr, parameters)
                 # print("机械手震动信息写入数据库:" + json.dumps(self.jsonobj))
                 # logger.writeLog('机械手震动信息写入数据库->' + json.dumps(self.jsonobj), "database.log")
             
@@ -366,7 +386,7 @@ class CNCParsing:
                               'ly_up_accelerationrms': self.jsonobj['LY+AccelerationRMS'], 'ry_up_accelerationrms': self.jsonobj['RY+AccelerationRMS'],
                               'time':self.jsonobj['Time']}
                 # 插入数据库  
-                self.oradb.insert(sqlstr, parameters)
+                # self.oradb.insert(sqlstr, parameters)
                 # print("机械手自检写入数据库:" + json.dumps(self.jsonobj))
                 # logger.writeLog('机械手自检写入数据库->' + json.dumps(self.jsonobj), "database.log")
 
@@ -426,13 +446,21 @@ class CNCParsing:
                             'temp5':self.jsonobj['Temp5'], 'temp6':self.jsonobj['Temp6'],
                             }
                 # 插入数据库
-                self.oradb.insert(sqlstr, parameters)
+                # self.oradb.insert(sqlstr, parameters)
                 # print("其他Transfer机床数据写入数据库:" + json.dumps(self.jsonobj))
                 # logger.writeLog('其他Transfer机床数据写入数据库->' + json.dumps(self.jsonobj), "database.log")
             else:
+                res = False
                 logger.writeLog("传入值异常，未找到匹配项!" + json.dumps(self.jsonobj))
+            
+            # 插入数据库  
+            if res:
+                res = self.oradb.insert(sqlstr, parameters)
         except:
+            res = False
             errstr = traceback.format_exc()
             logger.writeLog("CNC字段解析程序失败:" + errstr + json.dumps(self.jsonobj))
+        finally:
+            return res
         
 

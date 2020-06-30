@@ -35,11 +35,12 @@ class CncKafka:
         返回一个消费者对象
         '''
         try:
-            # 消费最新的消息，并且自动提交偏移
+            # 消费最新的消息，手动提交偏移
             consumer = KafkaConsumer(self.kafkatopic,
                          group_id=self.consumergroup,
                          client_id=self.consumerid,
                          bootstrap_servers=self.kafkahosts,
+                         enable_auto_commit = False,
                          auto_offset_reset = 'earliest')
             logger.writeLog("Kafka消费者初始化成功", "kafka.log")
             return consumer

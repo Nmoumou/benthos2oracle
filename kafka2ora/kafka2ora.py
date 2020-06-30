@@ -17,7 +17,9 @@ if __name__ == "__main__":
             try:
                 kmsg = message.value.decode('utf-8')
                 resmsg =json.loads(kmsg)
-                cncparse.parse(resmsg['topic'], resmsg)
+                res = cncparse.parse(resmsg['topic'], resmsg)
+                if res:#如果解析插入成功，手动提交偏移量
+                    consumer.commit()
             except:
                 errstr = traceback.format_exc()
                 logger.writeLog("Kafka消费数据写入库错误:" + errstr + kmsg , "kafka2ora.log")
